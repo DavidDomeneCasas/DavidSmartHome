@@ -15,7 +15,6 @@ byte temps[3] = { tempsI[0] , tempsI[1] , tempsI[2] } ;
 unsigned long t = millis() ;
 
 void loop () {
-  ///kdsnfglñd
     if ( millis() > t + 60000 ) {
        if ( temps[2] == (byte) 59 ) {
            temps[2] = 0;
@@ -104,3 +103,4 @@ void persianesEmetre(byte persiana, byte instruccio){
       } digitalWrite ( emissor ,  LOW ) ;
       delay ( 800 ) ;
 }
+  
