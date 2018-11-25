@@ -1,0 +1,3 @@
+Versió totalment operativa.
+---------------------------
+Versió lleugera amb només les funcions bàsiques.
