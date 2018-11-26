@@ -1,6 +1,6 @@
 // Hardware: Arduino Uno (Sparkfun, RedBoard) & RF Link Transmitter - 434MHz (433.92MHz)
 const byte emissor = 5;
-byte tempsI[3] = {7, 23, 47}; // Set time: dia [1-7], hora [0-23], minutos [0-59] (Per evitar errors, s'ha d'escriure l'hora sense zeros al davant. Ex.: Sí->7 / No->07.)
+byte tempsI[3] = {1, 21, 37}; // Set time: dia [1-7], hora [0-23], minutos [0-59] (Per evitar errors, s'ha d'escriure l'hora sense zeros al davant. Ex.: Sí->7 / No->07.)
 byte temps[3] = {tempsI[0], tempsI[1], tempsI[2]};
 unsigned long t_reinici = 604800000; // millisegons que té una setmana.
 unsigned long t = millis() ;
@@ -11,26 +11,31 @@ void setup()
     pinMode(12, OUTPUT); digitalWrite(12, HIGH); // Reset del hardware.
     
     t_reinici += 11000; // Correcció de temps per imprecició del rellotge del hardwar.
+    Serial.begin(9600);
 }
 
 void loop()
 {
   cronosHardware();
-  cronosPersianes();
+  Serial.print(temps[0]);
+  Serial.print(":");
+  Serial.print(temps[1]);
+  Serial.print(":");
+  Serial.println(temps[2]);
 }
 
 void cronosPersianes()
 {
     // Laborables
     if (temps[0] < 6 && temps[1] == 7 && temps[2] == 0) persianes(0b111111, 4); // Pre-Pujada
-    if (temps[0] < 6 && temps[1] == 8 && temps[2] == 0) persianes(111111, 1); // Pujada
+    if (temps[0] < 6 && temps[1] == 8 && temps[2] == 0) persianes(0b111111, 1); // Pujada
     // Festius
-    if (temps[0] >= 6 && temps[1] == 7 && temps[2] == 0) persianes(110000, 4); // Pre-Pujada
-    if (temps[0] >= 6 && temps[1] == 8 && temps[2] == 0) persianes(110011, 1); // Pujada
-    if (temps[0] >= 6 && temps[1] == 9 && temps[2] == 0) persianes(000011, 4); // Pre-Pujada
-    if (temps[0] >= 6 && temps[1] == 10 && temps[2] == 0) persianes(000011, 1); // Pujada
-    if (temps[0] >= 6 && temps[1] == 13 && temps[2] == 0) persianes(001100, 4); // Pre-Pujada
-    if (temps[0] >= 6 && temps[1] == 13 && temps[2] == 15) persianes(001100, 1); // Pujada
+    if (temps[0] >= 6 && temps[1] == 7 && temps[2] == 0) persianes(0b110000, 4); // Pre-Pujada
+    if (temps[0] >= 6 && temps[1] == 8 && temps[2] == 0) persianes(0b110000, 1); // Pujada
+    if (temps[0] >= 6 && temps[1] == 9 && temps[2] == 0) persianes(0b000011, 4); // Pre-Pujada
+    if (temps[0] >= 6 && temps[1] == 10 && temps[2] == 0) persianes(0b000011, 1); // Pujada
+    if (temps[0] >= 6 && temps[1] == 13 && temps[2] == 0) persianes(0b001100, 4); // Pre-Pujada
+    if (temps[0] >= 6 && temps[1] == 13 && temps[2] == 15) persianes(0b001100, 1); // Pujada
     // Tots els dies
     if (temps[1] ==  18 && temps[2] == 0) persianes(111111, 3); // Baixada diaria
 
@@ -38,12 +43,12 @@ void cronosPersianes()
 
 void persianes(byte persianes, short instruccio)
 {
-  if (persianes * 0b000001 == 0b000001) accio(1,instruccio);
-  if (persianes * 0b000010 == 0b000010) accio(2,instruccio);
-  if (persianes * 0b000100 == 0b000100) accio(3,instruccio);
-  if (persianes * 0b001000 == 0b001000) accio(4,instruccio);
-  if (persianes * 0b010000 == 0b010000) accio(5,instruccio);
-  if (persianes * 0b100000 == 0b100000) accio(6,instruccio);
+  if (persianes & 0b100000) accio(1,instruccio);
+  if (persianes & 0b010000) accio(2,instruccio);
+  if (persianes & 0b001000) accio(3,instruccio);
+  if (persianes & 0b000100) accio(4,instruccio);
+  if (persianes & 0b000010) accio(5,instruccio);
+  if (persianes & 0b000001) accio(6,instruccio);
 
 }
 
@@ -168,6 +173,7 @@ void cronosHardware()
      }
      else temps[2] ++ ;
      t += 60000 ;
+     cronosPersianes();
   }
   if ( millis() >= t_reinici) digitalWrite(12, LOW); // Reset hardware.
 }
