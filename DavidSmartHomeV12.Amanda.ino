@@ -1,6 +1,6 @@
 // Hardware: Arduino Uno (Sparkfun, RedBoard) & RF Link Transmitter - 434MHz (433.92MHz)
 const byte emissor = 5;
-byte tempsI[3] = {1, 21, 37}; // Set time: dia [1-7], hora [0-23], minutos [0-59] (Per evitar errors, s'ha d'escriure l'hora sense zeros al davant. Ex.: Sí->7 / No->07.)
+byte tempsI[3] = {3, 23, 15}; // Set time: dia [1-7], hora [0-23], minutos [0-59] (Per evitar errors, s'ha d'escriure l'hora sense zeros al davant. Ex.: Sí->7 / No->07.)
 byte temps[3] = {tempsI[0], tempsI[1], tempsI[2]};
 unsigned long t_reinici = 604800000; // millisegons que té una setmana.
 unsigned long t = millis() ;
@@ -11,17 +11,11 @@ void setup()
     pinMode(12, OUTPUT); digitalWrite(12, HIGH); // Reset del hardware.
     
     t_reinici += 11000; // Correcció de temps per imprecició del rellotge del hardwar.
-    Serial.begin(9600);
 }
 
 void loop()
 {
   cronosHardware();
-  Serial.print(temps[0]);
-  Serial.print(":");
-  Serial.print(temps[1]);
-  Serial.print(":");
-  Serial.println(temps[2]);
 }
 
 void cronosPersianes()
@@ -37,7 +31,7 @@ void cronosPersianes()
     if (temps[0] >= 6 && temps[1] == 13 && temps[2] == 0) persianes(0b001100, 4); // Pre-Pujada
     if (temps[0] >= 6 && temps[1] == 13 && temps[2] == 15) persianes(0b001100, 1); // Pujada
     // Tots els dies
-    if (temps[1] ==  18 && temps[2] == 0) persianes(111111, 3); // Baixada diaria
+    if (temps[1] ==  18 && temps[2] == 0) persianes(0b111111, 3); // Baixada diaria
 
 }
 
